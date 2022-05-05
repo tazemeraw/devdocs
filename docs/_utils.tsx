@@ -46,7 +46,11 @@ export const fillDefaultProps = (props: Props): Props => ({
 export const getDescription = ({
     description: Description = null,
     extraDescription = null,
+    children = null,
 }: Props, DefaultDescription?: string | boolean): ReactNode => {
+    if (children) {
+        return children;
+    }
     if (Description) {
         return (
             <Description />
