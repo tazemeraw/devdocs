@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  */
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { ComponentFileSummary as ComponentFileSummaryGeneric } from '@site/src/components';
 import { getExample } from '@site/src/moodleBridge';
 
@@ -44,14 +44,16 @@ export const fillDefaultProps = (props: Props): Props => ({
  * @returns {MDXLayout}
  */
 export const getDescription = ({
-    description = null,
+    description: Description = null,
     extraDescription = null,
-}: Props, DefaultDescription?: string | boolean): ReactFragment => {
-    if (description) {
-        return description;
+}: Props, DefaultDescription?: string | boolean): ReactNode => {
+    if (Description) {
+        return (
+            <Description />
+        );
     }
 
-    if (description === false) {
+    if (Description === false) {
         return null;
     }
 

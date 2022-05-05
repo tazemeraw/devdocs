@@ -15,7 +15,7 @@
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import CodeBlock from '@theme/CodeBlock';
 import DefaultComponentData from '@site/data/master/components.json';
 
@@ -25,7 +25,7 @@ export interface ComponentList {
 }
 
 export interface Props {
-    description?: string,
+    description?: ReactNode | string | false | null,
     example?: string,
     exampleFilepath?: string,
     examplePurpose?: string,

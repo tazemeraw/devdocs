@@ -6,9 +6,10 @@ tags:
 ---
 
 import {
-    Lang,
-    VersionPHP,
     DbAccessPHP,
+    Lang,
+    Lib,
+    VersionPHP,
 } from '../../_files';
 
 import { CodeBlock } from '@site/src/components';
@@ -60,7 +61,8 @@ Some of the important files for the repository plugintype are described below. S
 
 ### lang/en/repository_pluginname.php
 
-export const langExample = `$string['pluginname']= 'Example repository';
+export const langExample = `
+$string['pluginname']= 'Example repository';
 $string['configplugin'] = 'Configuration for Example repository';
 $string['pluginname_help'] = 'A repository description';`;
 
@@ -72,18 +74,18 @@ $string['pluginname_help'] = 'A repository description';`;
 
 ### lib.php
 
-This file contains the main repository class definition. This class must extend the `repository` class. Once this class is created, the plugin will be able to override the parent class methods to alter the way Moodle interact with the repository. See [Administration API](#administration-apis) for more information.
+import RepositoryLibExample from '!!raw-loader!./_examples/lib.php';
+import RepositoryLibDescription from './_files/lib.mdx';
 
-<details>
-  <summary>View example</summary>
-  <div>
-
-import RepoLib from '!!raw-loader!./_examples/lib.php';
-
-<CodeBlock language="js" title="repository/pluginname/lib.php">{RepoLib}</CodeBlock>
-
-  </div>
-</details>
+<Lib
+    plugintype="repository"
+    pluginname="pluginname"
+    example={RepositoryLibExample}
+    // Not legacy for repository.
+    legacy={false}
+    description={RepositoryLibDescription}
+    required
+/>
 
 ### db/access.php
 
