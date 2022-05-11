@@ -32,6 +32,7 @@ versionConfig.current = {
 const remarkPlugins = [
     require('./src/remark/trackerLinks'),
     require('./src/remark/legacyDocLinks'),
+    require('./src/remark/trackerLinksFromText'),
     require('mdx-mermaid'),
 ];
 
@@ -39,7 +40,7 @@ const remarkPlugins = [
 const config = {
     title: 'Moodle',
     tagline: '(Un)official Developer Resources',
-    //url: 'https://develop.moodle.org',
+    // url: 'https://develop.moodle.org',
     url: process.env?.url || 'https://moodle.github.io',
     baseUrl: process.env?.baseUrl || '/devdocs/',
     trailingSlash: false,
