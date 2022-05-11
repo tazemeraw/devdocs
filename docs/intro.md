@@ -6,3 +6,5 @@ slug: /
 ---
 
 This is the Developer Documentation for Moodle 4.0.
+
+MDL-12345 MDL-123. MDL-54321.

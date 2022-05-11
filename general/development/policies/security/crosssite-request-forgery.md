@@ -104,8 +104,8 @@ The frontend includes ever showing the sesskey in the browser URL bar or anywher
 
 Some examples to help guide how to fix these issues:
 
-- {tracker MDL-68292}
-- {tracker MDL-73295}
+- MDL-68292
+- MDL-73295
 
 ## What you need to do as an administrator
 
