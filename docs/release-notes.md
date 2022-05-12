@@ -456,4 +456,4 @@ For the best experience and optimum security, we recommend that you keep your br
 
 ## See also
 
-- [Moodle 3.11 release notes](https://docs.moodle.org/dev/Moodle_3.11_release_notes)
+- [Moodle 3.11 release notes](/general/release-notes/3.11)

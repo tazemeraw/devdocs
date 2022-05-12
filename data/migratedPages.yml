@@ -64,6 +64,66 @@ Local_plugins:
 Mission:
 - filePath: "/general/community/mission.md"
   slug: "/general/community/mission"
+Moodle_3.10.10_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.10.md"
+  slug: "/general/release-notes/3.10/3.10.10"
+Moodle_3.10.11_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.11.md"
+  slug: "/general/release-notes/3.10/3.10.11"
+Moodle_3.10.1_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.1.md"
+  slug: "/general/release-notes/3.10/3.10.1"
+Moodle_3.10.2_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.2.md"
+  slug: "/general/release-notes/3.10/3.10.2"
+Moodle_3.10.3_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.3.md"
+  slug: "/general/release-notes/3.10/3.10.3"
+Moodle_3.10.4_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.4.md"
+  slug: "/general/release-notes/3.10/3.10.4"
+Moodle_3.10.5_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.5.md"
+  slug: "/general/release-notes/3.10/3.10.5"
+Moodle_3.10.6_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.6.md"
+  slug: "/general/release-notes/3.10/3.10.6"
+Moodle_3.10.7_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.7.md"
+  slug: "/general/release-notes/3.10/3.10.7"
+Moodle_3.10.8_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.8.md"
+  slug: "/general/release-notes/3.10/3.10.8"
+Moodle_3.10.9_release_notes:
+- filePath: "/general/release-notes/3.10/3.10.9.md"
+  slug: "/general/release-notes/3.10/3.10.9"
+Moodle_3.10_release_notes:
+- filePath: "/general/release-notes/3.10/index.md"
+  slug: "/general/release-notes/3.10/"
+Moodle_3.11.1_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.1.md"
+  slug: "/general/release-notes/3.11/3.11.1"
+Moodle_3.11.2_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.2.md"
+  slug: "/general/release-notes/3.11/3.11.2"
+Moodle_3.11.3_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.3.md"
+  slug: "/general/release-notes/3.11/3.11.3"
+Moodle_3.11.4_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.4.md"
+  slug: "/general/release-notes/3.11/3.11.4"
+Moodle_3.11.5_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.5.md"
+  slug: "/general/release-notes/3.11/3.11.5"
+Moodle_3.11.6_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.6.md"
+  slug: "/general/release-notes/3.11/3.11.6"
+Moodle_3.11.7_release_notes:
+- filePath: "/general/release-notes/3.11/3.11.7.md"
+  slug: "/general/release-notes/3.11/3.11.7"
+Moodle_3.11_release_notes:
+- filePath: "/general/release-notes/3.11/index.md"
+  slug: "/general/release-notes/3.11/"
 Moodle_4.0_release_notes:
 - filePath: "/docs/release-notes.md"
   slug: "/docs/release-notes"
