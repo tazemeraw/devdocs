@@ -16,7 +16,7 @@ If you are new to Open Source contributions, or you are interested in learning h
 
 ## Code of Conduct
 
-Moodle is in the process of updating and modernising its [Code of Conduct](./code-of-conduct.md). If you would like to be a part of this process, please see the [GitHub issue](https://github.com/moodle/devdocs/issues/47) and give us your thoughts.
+Moodle is in the process of updating and modernising its [Code of Conduct](code-of-conduct.md). If you would like to be a part of this process, please see the [GitHub issue](https://github.com/moodle/devdocs/issues/47) and give us your thoughts.
 
 ## Get Involved
 
