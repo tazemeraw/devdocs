@@ -25,6 +25,7 @@ const inquirer = require('inquirer');
 
 const {
     getFetchDoc,
+    getGetPagesByPrefix,
     getClient,
     getLogger,
     getNormalizedPath,
@@ -120,6 +121,167 @@ const checkData = (data) => new Promise((resolve) => {
     ask(allQuestions);
 });
 
+const fetchOneDoc = async (title, newPath, options) => {
+    logger.info(`Fetching ${title} to ${newPath}`);
+
+    const doc = await fetchDoc(title);
+    const newFile = getNormalizedPath(newPath);
+
+    logger.info('Guessing frontmatter');
+    let frontMatter = getFrontmatterData(title, doc.data);
+
+    // Remove any categories- they were picked up by the frontmatter detector.
+    doc.data = doc.data.replaceAll(categoryRegexp, '');
+
+    logger.info('');
+    logger.info(getFrontmatter(frontMatter));
+
+    if (options.interactive) {
+        frontMatter = await checkData(frontMatter);
+        logger.info(getFrontmatter(frontMatter));
+    }
+
+    const pageContent = `${getFrontmatter(frontMatter)}\n${doc.data}`;
+    await writeFile(newFile, pageContent);
+
+    const phaseScripts = [
+        // Run codeblocks first because many other rules depend on detecting if the content is in code.
+        {
+            type: 'markdownlint',
+            path: '01-codeblocks',
+        },
+        // Run lists before headers
+        {
+            type: 'markdownlint',
+            path: '02-lists',
+        },
+        {
+            type: 'markdownlint',
+            path: '03-headers',
+        },
+
+        // External links before wikilinks.
+        {
+            type: 'markdownlint',
+            path: '04-externallinks',
+        },
+        {
+            type: 'markdownlint',
+            path: '05-wikilinks',
+        },
+
+        // Replace MDL-\d+ strings with links to the tracker.
+        // This replaced the wikimedia filter to do the same.
+        {
+            type: 'markdownlint',
+            path: '06-trackerlinkfilter',
+        },
+
+        // Bold must be before italic
+        {
+            type: 'markdownlint',
+            path: '08-bold',
+        },
+        {
+            type: 'markdownlint',
+            path: '09-italic',
+        },
+
+        // Update tables.
+        {
+            type: 'script',
+            path: '20-tables/migrate-table.mjs',
+            args: [
+                newFile,
+            ],
+        },
+
+        // Run a final lint of the global config.
+        // Run it twice becuase some changes lead to other changes.
+        {
+            type: 'markdownlint',
+            path: '100-final',
+        },
+        {
+            type: 'markdownlint',
+            path: '100-final',
+        },
+    ];
+
+    logger.info('Passing through transformation lints');
+    for (const phaseData of phaseScripts) {
+        const phasePath = path.resolve(path.join(
+            'scripts/migration/phases',
+            phaseData.path,
+        ));
+        logger.info(`=> Running migration phase ${phaseData.path}`);
+        if (phaseData.type === 'markdownlint') {
+            // Use markdownlint-cli2-config to specify these as separate phases.
+            // This is necessary because if two rules operate on the same text, then no fix is made.
+            // The order of these is important because they often do operate on the same line.
+            // For example, we *must* convert all numbered lists before converting markup headers to markdown.
+            const phaseScript = path.join(phasePath, '.markdownlint-cli2.cjs');
+            logger.debug(`yarn markdownlint-cli2-config ${phaseScript} ${newFile}`);
+
+            await new Promise((resolve) => {
+                exec(`yarn markdownlint-cli2-config ${phaseScript} ${newFile}`, async (error, stdout, stderr) => {
+                    if (error) {
+                        logger.warn(
+                            `The '${phaseData.path}' conversion reported warnings `
+                            + 'that you will need to resolve manually',
+                        );
+                        logger.warn(stderr);
+                        if (options.interactive) {
+                            logger.warn('If possible, correct this issue before continuing');
+
+                            await inquirer.prompt([{
+                                message: 'Press [enter] to continue.',
+                                name: 'ready',
+                                default: '',
+                            }]);
+                        } else {
+                            logger.warn('----');
+                        }
+                    }
+                    logger.debug(stdout);
+                    resolve();
+                });
+            });
+        }
+
+        if (phaseData.type === 'script') {
+            await new Promise((resolve) => {
+                exec(`${phasePath} ${phaseData.args.join(' ')}`, async (error, stdout, stderr) => {
+                    if (error) {
+                        logger.warn(
+                            `The '${phaseData.path}' conversion reported warnings `
+                            + 'that you will need to resolve manually',
+                        );
+                        logger.warn(stderr);
+                        if (options.interactive) {
+                            logger.warn('If possible, correct this issue before continuing');
+
+                            await inquirer.prompt([{
+                                message: 'Press [enter] to continue.',
+                                name: 'ready',
+                                default: '',
+                            }]);
+                        } else {
+                            logger.warn('----');
+                        }
+                    }
+                    logger.debug(stdout);
+                    resolve();
+                });
+            });
+        }
+    }
+
+    // Update the migratedPages file.
+    logger.info('=> Adding to migrated page list');
+    addMigratedPage(title.replaceAll(/ /g, '_'), newFile, guessSlug(newFile));
+};
+
 program
     .name('wikimedia-fetch')
     .description('CLI to migrate a legacy page from https://docs.moodle.org/dev/')
@@ -131,165 +293,27 @@ program
     .arguments('<title>', 'Title of doc to migrate')
     .arguments('<newpath>', 'New path')
     .option('-i, --no-interactive', 'Run without any prompts')
-    .action(async (title, newPath, options) => {
-        logger.info(`Fetching ${title} to ${newPath}`);
+    .action(fetchOneDoc);
 
-        const doc = await fetchDoc(title);
-        const newFile = getNormalizedPath(newPath);
+program
+    .command('migrate-batch')
+    .description('Migrate a batch of docuemnts to a folder')
+    .arguments('<prefix>', 'Prefix')
+    .arguments('<folder>', 'Target folder')
+    .arguments('<filenameRegex>', 'Filename regex')
+    .arguments('<filenameReplacement>', 'Filename replacement')
 
-        logger.info('Guessing frontmatter');
-        let frontMatter = getFrontmatterData(title, doc.data);
-
-        // Remove any categories- they were picked up by the frontmatter detector.
-        doc.data = doc.data.replaceAll(categoryRegexp, '');
-
-        logger.info('');
-        logger.info(getFrontmatter(frontMatter));
-
-        if (options.interactive) {
-            frontMatter = await checkData(frontMatter);
-            logger.info(getFrontmatter(frontMatter));
+    .action(async (match, folder, filenameRegex, filenameReplacement, options) => {
+        const getPagesByPrefix = getGetPagesByPrefix(logger)(client);
+        const pages = await getPagesByPrefix(match);
+        console.log(pages);
+        for (const { title: pageTitle } of pages) {
+            console.log(pageTitle);
+            console.log(filenameRegex);
+            const newFileName = pageTitle.replace(new RegExp(filenameRegex), filenameReplacement);
+            const pagePath = path.join(folder, newFileName);
+            await fetchOneDoc(pageTitle, pagePath, options);
         }
-
-        const pageContent = `${getFrontmatter(frontMatter)}\n${doc.data}`;
-        await writeFile(newFile, pageContent);
-
-        const phaseScripts = [
-            // Run codeblocks first because many other rules depend on detecting if the content is in code.
-            {
-                type: 'markdownlint',
-                path: '01-codeblocks',
-            },
-            // Run lists before headers
-            {
-                type: 'markdownlint',
-                path: '02-lists',
-            },
-            {
-                type: 'markdownlint',
-                path: '03-headers',
-            },
-
-            // External links before wikilinks.
-            {
-                type: 'markdownlint',
-                path: '04-externallinks',
-            },
-            {
-                type: 'markdownlint',
-                path: '05-wikilinks',
-            },
-
-            // Replace MDL-\d+ strings with links to the tracker.
-            // This replaced the wikimedia filter to do the same.
-            {
-                type: 'markdownlint',
-                path: '06-trackerlinkfilter',
-            },
-
-            // Bold must be before italic
-            {
-                type: 'markdownlint',
-                path: '08-bold',
-            },
-            {
-                type: 'markdownlint',
-                path: '09-italic',
-            },
-
-            // Update tables.
-            {
-                type: 'script',
-                path: '20-tables/migrate-table.mjs',
-                args: [
-                    newFile,
-                ],
-            },
-
-            // Run a final lint of the global config.
-            // Run it twice becuase some changes lead to other changes.
-            {
-                type: 'markdownlint',
-                path: '100-final',
-            },
-            {
-                type: 'markdownlint',
-                path: '100-final',
-            },
-        ];
-
-        logger.info('Passing through transformation lints');
-        for (const phaseData of phaseScripts) {
-            const phasePath = path.resolve(path.join(
-                'scripts/migration/phases',
-                phaseData.path,
-            ));
-            logger.info(`=> Running migration phase ${phaseData.path}`);
-            if (phaseData.type === 'markdownlint') {
-                // Use markdownlint-cli2-config to specify these as separate phases.
-                // This is necessary because if two rules operate on the same text, then no fix is made.
-                // The order of these is important because they often do operate on the same line.
-                // For example, we *must* convert all numbered lists before converting markup headers to markdown.
-                const phaseScript = path.join(phasePath, '.markdownlint-cli2.cjs');
-                logger.debug(`yarn markdownlint-cli2-config ${phaseScript} ${newFile}`);
-
-                await new Promise((resolve) => {
-                    exec(`yarn markdownlint-cli2-config ${phaseScript} ${newFile}`, async (error, stdout, stderr) => {
-                        if (error) {
-                            logger.warn(
-                                `The '${phaseData.path}' conversion reported warnings `
-                                + 'that you will need to resolve manually',
-                            );
-                            logger.warn(stderr);
-                            if (options.interactive) {
-                                logger.warn('If possible, correct this issue before continuing');
-
-                                await inquirer.prompt([{
-                                    message: 'Press [enter] to continue.',
-                                    name: 'ready',
-                                    default: '',
-                                }]);
-                            } else {
-                                logger.warn('----');
-                            }
-                        }
-                        logger.debug(stdout);
-                        resolve();
-                    });
-                });
-            }
-
-            if (phaseData.type === 'script') {
-                await new Promise((resolve) => {
-                    exec(`${phasePath} ${phaseData.args.join(' ')}`, async (error, stdout, stderr) => {
-                        if (error) {
-                            logger.warn(
-                                `The '${phaseData.path}' conversion reported warnings `
-                                + 'that you will need to resolve manually',
-                            );
-                            logger.warn(stderr);
-                            if (options.interactive) {
-                                logger.warn('If possible, correct this issue before continuing');
-
-                                await inquirer.prompt([{
-                                    message: 'Press [enter] to continue.',
-                                    name: 'ready',
-                                    default: '',
-                                }]);
-                            } else {
-                                logger.warn('----');
-                            }
-                        }
-                        logger.debug(stdout);
-                        resolve();
-                    });
-                });
-            }
-        }
-
-        // Update the migratedPages file.
-        logger.info('=> Adding to migrated page list');
-        addMigratedPage(title.replaceAll(/ /g, '_'), newFile, guessSlug(newFile));
     });
 
 program.parse();

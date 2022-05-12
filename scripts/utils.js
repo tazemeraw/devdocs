@@ -15,6 +15,7 @@
  * along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/* eslint-disable import/no-extraneous-dependencies */
 const Bot = require('nodemw'); // cspell:ignore nodemw
 const path = require('path');
 const winston = require('winston');
@@ -40,6 +41,17 @@ const getFetchDoc = (logger) => (client) => (pageTitle) => new Promise((resolve,
             pageTitle,
             data,
         });
+    });
+});
+
+const getGetPagesByPrefix = (logger) => (client) => (prefix) => new Promise((resolve, reject) => {
+    logger.debug(`Fetching all articles with prefix ${prefix}`);
+    client.getPagesByPrefix(prefix, (err, data) => {
+        if (err) {
+            reject(err);
+        }
+
+        resolve(data);
     });
 });
 
@@ -356,6 +368,7 @@ module.exports = {
     getMigrationPagePath,
     getObsoletePagePath,
     getNormalizedPath,
+    getGetPagesByPrefix,
     getUpdateMigratedPages,
     getUpdateMigratedPagesProtection,
     guessSlug,
