@@ -49,6 +49,11 @@
             "additionalProperties": false,
             "unevaluatedProperties": false
         },
+        "issueNumber": {
+            "type": "string",
+            "additionalProperties": false,
+            "unevaluatedProperties": false
+        },
         "project": {
             "type": "object",
             "properties": {
@@ -75,6 +80,12 @@
                     "type": "array",
                     "items": {
                         "$ref": "#/$defs/discussionLink"
+                    }
+                },
+                "issueNumbers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/$defs/issueNumber"
                     }
                 }
             },
