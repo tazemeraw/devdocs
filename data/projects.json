@@ -30,7 +30,9 @@
                     "githubUsername": "marinaglancy"
                 }
             ],
-            "issueNumbers": "MDL-46585"
+            "issueNumbers": [
+                "MDL-46585"
+            ]
         },
         "api/amos": {
             "title": "Automated Manipulation of Strings (AMOS)",
@@ -47,7 +49,9 @@
                     "title": "Discussion"
                 }
             ],
-            "issueNumbers": "MDL-18797"
+            "issueNumbers": [
+                "MDL-18797"
+            ]
         }
     }
 }
