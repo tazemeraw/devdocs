@@ -4,6 +4,7 @@ title: Mission
 ## Our Mission
 
 The mission of the Moodle project (including Moodle HQ and all Moodle software) is:
+this so nice I can update it easily
 
 *Empowering educators to improve our world.*
 
